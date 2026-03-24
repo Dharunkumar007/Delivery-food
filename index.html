@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QuickBite Delivery</title>
+
+  <style>
+    :root{
+      --brand:#ff3d00;
+      --bg:#f5f5f5;
+      --card:#ffffff;
+      --text:#111;
+      --muted:#666;
+      --success:#1b8f3a;
+      --danger:#c62828;
+      --shadow:0 6px 18px rgba(0,0,0,.12);
+      --radius:12px;
+    }
+
+    body { font-family: Arial, sans-serif; margin: 0; background: var(--bg); color: var(--text); }
+    header {
+      background: var(--brand);
+      color: white;
+      padding: 16px;
+      text-align: center;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .container { padding: 16px; max-width: 720px; margin: 0 auto; }
+
+    .item, .card {
+      background: var(--card);
+      padding: 14px;
+      margin: 12px 0;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .row { display:flex; align-items:center; justify-content:space-between; gap: 12px; }
+    .muted { color: var(--muted); }
+
+    button {
+      padding: 10px 14px;
+      background: var(--success);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform .08s ease, opacity .15s ease;
+    }
+    button:hover { transform: translateY(-1px); opacity: .95; }
+    button:active { transform: translateY(0px); opacity: .9; }
+
+    button.secondary { background:#111; }
+    button.danger { background: var(--danger); }
+
+    #cartBtn {
+      position: fixed;
+      bottom: 18px;
+      right: 18px;
+      background: #111;
+      box-shadow: var(--shadow);
+      z-index: 20;
+    }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .field { display:flex; flex-direction:column; gap: 6px; margin: 10px 0; }
+    input, select {
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      outline: none;
+    }
+    input:focus, select:focus { border-color: var(--brand); }
+
+    .actions { display:flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+
+    .cart-line{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+    }
+    .cart-line:last-child{ border-bottom:none; }
+
+    .price { font-weight: 700; }
+
+    .totalBox{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #eee;
+      font-weight: 800;
+    }
+  </style>
+</head>
+
+<body>
+  <header>QuickBite Delivery</header>
+
+  <!-- HOME -->
+  <main class="container page active" id="homePage" aria-label="Home page">
+    <div class="item">
+      <div class="row">
+        <div>
+          <h3 style="margin:0">Pizza 🍕</h3>
+          <div class="muted">₹199</div>
+        </div>
+        <button data-add="Pizza" data-price="199" type="button">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="row">
+        <div>
+          <h3 style="margin:0">Burger 🍔</h3>
+          <div class="muted">₹99</div>
+        </div>
+        <button data-add="Burger" data-price="99" type="button">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="row">
+        <div>
+          <h3 style="margin:0">Juice 🥤</h3>
+          <div class="muted">₹49</div>
+        </div>
+        <button data-add="Juice" data-price="49" type="button">Add to Cart</button>
+      </div>
+    </div>
+  </main>
+
+  <button id="cartBtn" class="secondary" type="button">🛒 Cart (<span id="cartCount">0</span>)</button>
+
+  <!-- CART -->
+  <section class="container page" id="cartPage" aria-label="Cart page">
+    <div class="card">
+      <h2 style="margin-top:0">Your Cart</h2>
+      <div id="cartItems"></div>
+
+      <div class="totalBox">
+        <div>Total</div>
+        <div class="price" id="total">₹0</div>
+      </div>
+
+      <div class="actions">
+        <button id="toCheckoutBtn" type="button">Proceed to Checkout</button>
+        <button id="backHomeBtn" class="secondary" type="button">Back</button>
+        <button id="clearCartBtn" class="danger" type="button">Clear Cart</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHECKOUT -->
+  <section class="container page" id="checkoutPage" aria-label="Checkout page">
+    <div class="card">
+      <h2 style="margin-top:0">Checkout</h2>
+
+      <div class="field">
+        <label for="name">Name</label>
+        <input type="text" id="name" placeholder="Your name" autocomplete="name" />
+      </div>
+
+      <div class="field">
+        <label for="address">Address</label>
+        <input type="text" id="address" placeholder="Delivery address" autocomplete="street-address" />
+      </div>
+
+      <div class="field">
+        <label for="payment">Payment</label>
+        <select id="payment">
+          <option value="cod">Cash on Delivery</option>
+          <option value="upi">UPI (Demo)</option>
+        </select>
+      </div>
+
+      <div class="actions">
+        <button id="placeOrderBtn" type="button">Place Order</button>
+        <button id="backToCartBtn" class="secondary" type="button">Back</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SUCCESS -->
+  <section class="container page" id="successPage" aria-label="Success page">
+    <div class="card">
+      <h2 style="margin-top:0">✅ Order Successful!</h2>
+      <p class="muted">Your food is on the way 🚚</p>
+      <div class="actions">
+        <button id="newOrderBtn" type="button">New Order</button>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const STORAGE_KEY = "quickbite_cart_v1";
+
+    const pages = {
+      home: document.getElementById("homePage"),
+      cart: document.getElementById("cartPage"),
+      checkout: document.getElementById("checkoutPage"),
+      success: document.getElementById("successPage"),
+    };
+
+    const cartBtn = document.getElementById("cartBtn");
+    const cartCountEl = document.getElementById("cartCount");
+    const cartItemsEl = document.getElementById("cartItems");
+    const totalEl = document.getElementById("total");
+
+    const toCheckoutBtn = document.getElementById("toCheckoutBtn");
+    const backHomeBtn = document.getElementById("backHomeBtn");
+    const clearCartBtn = document.getElementById("clearCartBtn");
+
+    const backToCartBtn = document.getElementById("backToCartBtn");
+    const placeOrderBtn = document.getElementById("placeOrderBtn");
+
+    const newOrderBtn = document.getElementById("newOrderBtn");
+
+    const nameInput = document.getElementById("name");
+    const addressInput = document.getElementById("address");
+    const paymentSelect = document.getElementById("payment");
+
+    let cart = loadCart();
+
+    function showPage(pageKey) {
+      Object.values(pages).forEach(p => p.classList.remove("active"));
+      pages[pageKey].classList.add("active");
+      if (pageKey === "cart") renderCart();
+      updateCartCount();
+    }
+
+    function loadCart() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveCart() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
+    }
+
+    function updateCartCount() {
+      cartCountEl.textContent = cart.length;
+    }
+
+    function addToCart(name, price) {
+      cart.push({ name, price: Number(price) });
+      saveCart();
+      updateCartCount();
+    }
+
+    function removeFromCart(index) {
+      cart.splice(index, 1);
+      saveCart();
+      renderCart();
+      updateCartCount();
+    }
+
+    function clearCart() {
+      cart = [];
+      saveCart();
+      renderCart();
+      updateCartCount();
+    }
+
+    function calculateTotal() {
+      return cart.reduce((sum, item) => sum + item.price, 0);
+    }
+
+    function renderCart() {
+      if (cart.length === 0) {
+        cartItemsEl.innerHTML = `<p class="muted">Your cart is empty. Add some items!</p>`;
+        totalEl.textContent = "₹0";
+        return;
+      }
+
+      cartItemsEl.innerHTML = "";
+      cart.forEach((item, index) => {
+        const line = document.createElement("div");
+        line.className = "cart-line";
+
+        const left = document.createElement("div");
+        left.innerHTML = `<div><strong>${item.name}</strong></div><div class="muted">₹${item.price}</div>`;
+
+        const removeBtn = document.createElement("button");
+        removeBtn.className = "danger";
+        removeBtn.type = "button";
+        removeBtn.textContent = "Remove";
+        removeBtn.addEventListener("click", () => removeFromCart(index));
+
+        line.appendChild(left);
+        line.appendChild(removeBtn);
+        cartItemsEl.appendChild(line);
+      });
+
+      totalEl.textContent = `₹${calculateTotal()}`;
+    }
+
+    // bind add-to-cart buttons
+    document.querySelectorAll("button[data-add]").forEach(btn => {
+      btn.addEventListener("click", () => addToCart(btn.dataset.add, btn.dataset.price));
+    });
+
+    cartBtn.addEventListener("click", () => showPage("cart"));
+    backHomeBtn.addEventListener("click", () => showPage("home"));
+    clearCartBtn.addEventListener("click", clearCart);
+
+    toCheckoutBtn.addEventListener("click", () => {
+      if (cart.length === 0) {
+        alert("Your cart is empty.");
+        return;
+      }
+      showPage("checkout");
+    });
+
+    backToCartBtn.addEventListener("click", () => showPage("cart"));
+
+    placeOrderBtn.addEventListener("click", () => {
+      const name = nameInput.value.trim();
+      const address = addressInput.value.trim();
+
+      if (!name || !address) {
+        alert("Please fill your name and address.");
+        return;
+      }
+
+      clearCart();
+      showPage("success");
+      console.log("Order placed:", {
+        name,
+        address,
+        payment: paymentSelect.value,
+        placedAt: new Date().toISOString()
+      });
+    });
+
+    newOrderBtn.addEventListener("click", () => {
+      nameInput.value = "";
+      addressInput.value = "";
+      paymentSelect.value = "cod";
+      showPage("home");
+    });
+
+    // initial
+    updateCartCount();
+  </script>
+</body>
+</html>
